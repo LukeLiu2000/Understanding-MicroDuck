@@ -1,0 +1,59 @@
+<mujoco model="two_link_arm">
+  <!-- 基础物理设置 -->
+  <option timestep="0.002" gravity="0 0 -9.81"/>
+
+  <default>
+    <joint damping="0.05" armature="0.1"/>
+    <geom friction="0.5 0.005 0.0001"/>
+  </default>
+
+  <worldbody>
+    <!-- 光源和地面 -->
+    <light name="sun" pos="2 3 4" dir="-2 -3 -4" diffuse="1 1 1"/>
+    <geom name="ground" type="plane" size="3 3 0.1"
+          rgba="0.2 0.3 0.4 1"/>
+
+    <!-- 固定底座 -->
+    <body name="base" pos="0 0 0">
+      <geom name="base_plate" type="cylinder" size="0.5 0.05"
+            pos="0 0 0" rgba="0.6 0.6 0.6 1"/>
+
+      <!-- 关节1：绕Y轴旋转，使第一连杆在竖直平面内运动 -->
+      <body name="link1_body" pos="0 0 0.05">
+        <joint name="joint1" type="hinge" axis="1 0 0"
+               range="-2.14 2.14" limited="true"/>
+
+        <!-- 连杆1 -->
+        <geom name="link1" type="capsule"
+              fromto="0 0 0 0 0 0.6" size="0.05"
+              rgba="0.2 0.8 0.2 1"/>
+
+        <!-- 关节2位于连杆1末端 -->
+        <body name="link2_body" pos="0 0 0.6">
+          <joint name="joint2" type="hinge" axis="0 1 0"
+                 range="-2.5 2.5" limited="true"/>
+
+          <!-- 连杆2 -->
+          <geom name="link2" type="capsule"
+                fromto="0 0 0 0 0 0.5" size="0.04"
+                rgba="0.2 0.2 0.8 1"/>
+
+          <!-- 末端执行器标记 -->
+          <geom name="tip" type="sphere" size="0.04"
+                pos="0 0 0.5" rgba="1 0.5 0 1"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <!-- 位置伺服执行器：ctrl 为目标关节角（弧度） -->
+  <actuator>
+    <position name="motor1" joint="joint1"
+              kp="30" kv="2"
+              ctrllimited="true" ctrlrange="-2.14 2.14"/>
+
+    <position name="motor2" joint="joint2"
+              kp="20" kv="1.5"
+              ctrllimited="true" ctrlrange="-2.5 2.5"/>
+  </actuator>
+</mujoco>
